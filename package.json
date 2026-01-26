@@ -1,6 +1,6 @@
 {
   "name": "projeto-fitness-backend",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Backend API para Projeto Fitness - B2B",
   "main": "src/index.js",
   "type": "commonjs",
