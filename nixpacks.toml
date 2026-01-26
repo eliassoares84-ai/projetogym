@@ -1,0 +1,5 @@
+[build]
+nixpkgs.rev = "nixos-23.11"
+
+[[nixpkgs.overlays]]
+url = "https://github.com/nix-community/poetry2nix/archive/master.tar.gz"

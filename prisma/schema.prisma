@@ -1,0 +1,110 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String      @id @default(cuid())
+  email         String      @unique
+  password      String
+  nome          String
+  role          Role        @default(ALUNO)
+  academiaId    String
+  academia      Academia    @relation(fields: [academiaId], references: [id], onDelete: Cascade)
+  planosTreino  PlanoTreino[] @relation("ProfessorPlanos")
+  meusPlanos    PlanoTreino[] @relation("AlunoPlanos")
+  alunos        User[]      @relation("ProfessorAlunos")
+  professor     User?       @relation("ProfessorAlunos", fields: [professorId], references: [id])
+  professorId   String?
+  xp            Int         @default(0)
+  nivel         Int         @default(1)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@index([academiaId])
+  @@index([professorId])
+}
+
+model Academia {
+  id            String        @id @default(cuid())
+  nome          String
+  email         String        @unique
+  plano         PlanoAcademia @default(PRO)
+  telefone      String?
+  endereco      String?
+  descricao     String?
+  logoUrl       String?
+  usuarios      User[]
+  planosTreino  PlanoTreino[]
+  exercicios    Exercicio[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+model PlanoTreino {
+  id            String        @id @default(cuid())
+  nome          String
+  descricao     String?
+  professor     User          @relation("ProfessorPlanos", fields: [professorId], references: [id], onDelete: Cascade)
+  professorId   String
+  aluno         User?         @relation("AlunoPlanos", fields: [alunoId], references: [id], onDelete: Cascade)
+  alunoId       String?
+  academia      Academia      @relation(fields: [academiaId], references: [id], onDelete: Cascade)
+  academiaId    String
+  exercicios    ExercicioEmPlano[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@index([professorId])
+  @@index([alunoId])
+  @@index([academiaId])
+}
+
+model Exercicio {
+  id            String        @id @default(cuid())
+  nome          String
+  descricao     String?
+  musculosTrabalhados String?
+  categoria     String?       // Categoria para agrupamento: Peito, Costas, Pernas, etc
+  academia      Academia      @relation(fields: [academiaId], references: [id], onDelete: Cascade)
+  academiaId    String
+  planosExercicio ExercicioEmPlano[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@index([academiaId])
+}
+
+model ExercicioEmPlano {
+  id            String        @id @default(cuid())
+  plano         PlanoTreino   @relation(fields: [planoId], references: [id], onDelete: Cascade)
+  planoId       String
+  exercicio     Exercicio     @relation(fields: [exercicioId], references: [id], onDelete: Cascade)
+  exercicioId   String
+  series        Int
+  repeticoes    Int
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@index([planoId])
+  @@index([exercicioId])
+}
+
+enum Role {
+  DONO_ACADEMIA
+  PROFESSOR
+  ALUNO
+}
+
+enum PlanoAcademia {
+  BASICO
+  PROFISSIONAL
+  PRO
+}
