@@ -14,4 +14,7 @@ router.post('/academia/planos-treino', authenticateToken, treinoController.criar
 router.put('/academia/planos-treino/:id', authenticateToken, treinoController.atualizarPlanoTreino);
 router.delete('/academia/planos-treino/:id', authenticateToken, treinoController.deletarPlanoTreino);
 
+// Treino completado (app do aluno)
+router.post('/treino/completado', authenticateToken, treinoController.registrarTreinoCompletado);
+
 module.exports = router;

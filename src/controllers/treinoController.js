@@ -263,3 +263,32 @@ exports.deletarPlanoTreino = async (req, res) => {
     res.status(500).json({ erro: 'Erro ao deletar plano' });
   }
 };
+
+// POST Registrar Treino Completado (app do aluno)
+exports.registrarTreinoCompletado = async (req, res) => {
+  try {
+    const { id: userId } = req.user;
+    const PONTOS_POR_TREINO = 50;
+
+    const user = await prisma.user.update({
+      where: { id: userId },
+      data: { xp: { increment: PONTOS_POR_TREINO } },
+      select: { xp: true, nivel: true }
+    });
+
+    const novoNivel = Math.floor(user.xp / 500) + 1;
+
+    return res.status(200).json({
+      treinoCompletadoId: `treino-${Date.now()}`,
+      pontosGanhos: PONTOS_POR_TREINO,
+      pontosTotal: user.xp,
+      streak: {
+        streakAtual: 1,
+        nivel: novoNivel,
+      }
+    });
+  } catch (erro) {
+    console.error('Erro ao registrar treino completado:', erro);
+    return res.status(500).json({ erro: 'Erro ao registrar treino' });
+  }
+};
